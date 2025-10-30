@@ -1,0 +1,138 @@
+---
+import fs from "fs";
+import path from "path";
+import Layout from "../../layouts/Layout.astro";
+
+interface EventData {
+  title: string;
+  location: string;
+  time: string;
+  creator: string;
+  details: string;
+  image: string;
+}
+
+export const prerender = false;
+
+const filePath = path.resolve("src/data/my_event.txt");
+const rawData = fs.readFileSync(filePath, "utf-8");
+
+const events: EventData[] = rawData
+  .split("---")
+  .map(block => {
+    const lines = block
+      .trim()
+      .split("\n")
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    const event: Partial<EventData> = {};
+    for (const line of lines) {
+      const [key, ...rest] = line.split(":");
+      if (key && rest.length) {
+        const value = rest.join(":").trim();
+        switch (key.trim().toLowerCase()) {
+          case "title":
+            event.title = value;
+            break;
+          case "location":
+            event.location = value;
+            break;
+          case "time":
+            event.time = value;
+            break;
+          case "creator":
+            event.creator = value;
+            break;
+          case "details":
+            event.details = value;
+            break;
+          case "image":
+            event.image = value;
+            break;
+        }
+      }
+    }
+    return event as EventData;
+  })
+  .filter(e => !!e.title);
+
+// const displayedEvents = events;
+const displayedEvents = events.slice(0, 6);
+
+---
+
+<Layout>
+  <main class="events">
+    <h1>My Events</h1>
+    <button class="item" onclick="window.location.replace('/events/create');">Create an Event </button>
+    <br>
+    <br>
+    <div class="event-grid">
+        {displayedEvents.map(event => (
+        <div class="event-card">
+          <a class="link" href={`/myEvents/${event.title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}/`}></a>
+          <h2>{event.title}</h2>
+          <p><strong>Sign Ups:</strong> 0</p>
+          <p><strong>Volunteer Applicants:</strong> 0</p>
+          <p><strong>Volunteer Applicants Accepted:</strong> 0</p>
+        </div>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .events {
+    flex: 1;
+    padding: 2rem;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .events h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .event-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .event-card h2 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  .link {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  button {
+    width: 15%;
+    padding: 1% 1%;
+    cursor: pointer;
+  }
+  
+</style>
+

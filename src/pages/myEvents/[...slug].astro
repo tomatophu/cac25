@@ -1,0 +1,210 @@
+---
+import fs from "fs";
+import path from "path";
+import Layout from "../../layouts/Layout.astro";
+
+interface EventData {
+  title: string;
+  location: string;
+  time: string;
+  creator: string;
+  details: string;
+  image: string;
+}
+
+export const prerender = false;
+
+const filePath = path.resolve("src/data/my_event.txt");
+const rawData = fs.readFileSync(filePath, "utf-8");
+
+const events: EventData[] = rawData
+  .split("---")
+  .map(block => {
+    const lines = block
+      .trim()
+      .split("\n")
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    const event: Partial<EventData> = {};
+    for (const line of lines) {
+      const [key, ...rest] = line.split(":");
+      if (key && rest.length) {
+        const value = rest.join("gi:").trim();
+        switch (key.trim().toLowerCase()) {
+          case "title":
+            event.title = value;
+            break;
+          case "location":
+            event.location = value;
+            break;
+          case "time":
+            event.time = value;
+            break;
+          case "creator":
+            event.creator = value;
+            break;
+          case "details":
+            event.details = value;
+            break;
+          case "image":
+            event.image = value;
+            break;
+        }
+      }
+    }
+    return event as EventData;
+  })
+  .filter(e => !!e.title);
+
+const eventMap = new Map();
+events.forEach(function (event) {
+  const slug = event.title
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
+  eventMap.set(slug, event);
+})
+
+const { slug } = Astro.params;
+const event = eventMap.get(slug);
+---
+
+<Layout>
+  <main class="event-detail">
+    {event ? (
+      <div class="event-container">
+        <h1 class="event-title">{event.title}</h1>
+
+        <div class="event-meta">
+          <div class="meta-item">
+            <span class="meta-label">Location</span>
+            <span class="meta-value">{event.location}</span>
+          </div>
+          
+          <div class="meta-item">
+            <span class="meta-label">Time</span>
+            <span class="meta-value">{event.time}</span>
+          </div>
+        </div>
+        <div class="event-details">
+          <p>{event.details}</p>
+        </div>
+        <p>
+          ✅ This event will provide proof of volunteer hours to volunteers.
+        </p>
+        <br>
+        <h2>Statistics</h2>
+        <img class="item" src="/graph.png">
+        <h2>Attendees</h2>
+        <p>No one has signed up for this event yet.</p>
+        <h2>Chaperone Applicants</h2>
+        <p>No one has applied to be a chaperone for this event yet.</p>
+        <br>
+        <br>
+        <br>
+      </div>
+    ) : (
+      <div class="not-found">
+        <p>Event not found.</p>
+      </div>
+    )}
+  </main>
+</Layout>
+
+<style>
+  .event-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .event-container {
+    text-align: center;
+  }
+
+  .event-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    color: #1a1a1a;
+    line-height: 1.2;
+  }
+
+  img {
+    width: 640px;
+  }
+
+  .event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+  }
+
+  .meta-value {
+    font-size: 1.125rem;
+    color: #1f2937;
+  }
+
+  .event-details {
+    text-align: left;
+    line-height: 1.8;
+    font-size: 1.125rem;
+    color: #374151;
+    padding: 2rem;
+    background: white;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .event-details p {
+    margin: 0;
+  }
+
+  .not-found {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .event-meta {
+      flex-direction: row;
+      justify-content: center;
+      gap: 3rem;
+    }
+
+    .meta-item {
+      min-width: 150px;
+    }
+  }
+
+  button {
+    width: 30%;
+    margin: auto;
+    padding: 1% 1%;
+    cursor: pointer;
+  }
+
+</style>
+

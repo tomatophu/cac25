@@ -1,0 +1,7 @@
+title: Minecraft Ocean Challenge Meetup 
+time: 2025-11-23T14:00 
+location: 123 Main St  
+details: In this Minecraft Ocean Challenge Meetup, teens will create new Ocean animals based on Minecraft. All proceeds will go to help saving turtles. 
+image: None 
+creator: Arthur T. Wilson
+--- 

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Build
+npm run astro build
+# Run Preview
+npm run preview
+

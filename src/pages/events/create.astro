@@ -1,0 +1,107 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<script type="text/javascript">
+  function create() {
+    try {
+      var eventData = new FormData();
+      eventData.append("name", document.getElementById("name").value);
+      eventData.append("time", document.getElementById("time").value);
+      eventData.append("location1", document.getElementById("location1").value);
+      eventData.append("location2", document.getElementById("location2").value);
+      eventData.append("details", document.getElementById("details").value);
+      eventData.append("creator", "Arthur T. Wilson");
+
+      const images = document.getElementById("image").files;
+      if (images.length) {
+        eventData.append("image", images[0]);
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:5000/events/create");
+      xhr.send(eventData);
+
+      return false;
+    }
+    finally {
+      window.location.replace("/myEvents");
+    }
+  }
+</script>
+
+<Layout>
+  <form id="form" onsubmit="return create()">
+    <label class="title">Create Event</label><br>
+    <br>
+    <label for="name">Event Name (Required):</label><br>
+    <input class="item" type="text" id="name" name="name" required><br>
+
+    <label for="time">Time (Required):</label><br>
+    <input class="item" type="datetime-local" id="time" name="time" required><br>
+
+    <label for="location">Address Line 1 (Required):</label><br>
+    <input class="item" type="text" id="location1" name="location1" placeholder="123 Main St" required><br>
+
+    <label for="location2">Address Line 2:</label><br>
+    <input class="item" type="text" id="location2" name="location2"><br>
+
+    <label for="details">Details:</label><br>
+    <textarea class="item" id="details" name="details"></textarea><br>
+
+    <label for="image">Image:</label><br>
+    <input type="file" id="image" name="image" multiple accept="image/*" /><br>
+
+    <div>
+      <input type="checkbox" id="volunteer" name="volunteer" value="volunteer"/>
+      <label for="volunteer">I will provide proof for volunteer hours.</label>
+    </div><br>
+
+    <input class="item" type="submit" id="submit" value="Create Event">
+  </form>
+</Layout>
+<style>
+  #form {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin: auto;
+  }
+  .title {
+    font-weight: 700;
+    font-size: 30px;
+  }
+  #name,
+  #time,
+  #location1,
+  #location2,
+  #image {
+    width: 100%;
+    height: 2em;
+
+    padding: 1% 2%;
+  }
+  #details {
+    resize: none;
+
+    width: 100%;
+    height: 10em;
+
+    padding: 1% 2%;
+  }
+
+  #submit {
+    background-color: #fff;
+    padding: 1% 2%;
+  }
+  #submit:hover {
+    cursor: pointer;
+  }
+</style>
+
